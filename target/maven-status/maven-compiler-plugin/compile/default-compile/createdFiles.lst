@@ -1,0 +1,9 @@
+org\example\CourierGenerator.class
+org\example\ForOrderData.class
+org\example\OrderGenerator.class
+org\example\ForOrderRequest.class
+org\example\ScooterColor.class
+org\example\CourierClient.class
+org\example\Client.class
+org\example\Courier.class
+org\example\CourierCredentials.class
