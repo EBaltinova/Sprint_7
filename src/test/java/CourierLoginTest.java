@@ -1,3 +1,4 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
 import org.example.Courier;
 import org.example.CourierClient;
@@ -24,6 +25,7 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Тест на возможность логина курьера")
     public void testCourierCanBeLogin() {
         ValidatableResponse loginResponse = courierClient.login(CourierCredentials.from(specificCourier));
         int statusCode = loginResponse.extract().statusCode();
@@ -31,6 +33,7 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Тест на невозможность логина курьера без необходимого поля")
     public void testCourierCantBeLoginWithoutNecessaryField() {
         ValidatableResponse loginResponse = courierClient.login(CourierCredentials.from(courierWithoutNecessaryField));
         int statusCode = loginResponse.extract().statusCode();
@@ -38,6 +41,7 @@ public class CourierLoginTest {
     }
 
     @Test
+    @DisplayName("Тест на невозможность логина курьера с неверным логином")
     public void testCourierCantBeLoginWithNotRightLogin() {
         ValidatableResponse loginResponse = courierClient.login(CourierCredentials.from(courierWithNotRightLogin));
         int statusCode = loginResponse.extract().statusCode();

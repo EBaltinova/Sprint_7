@@ -1,5 +1,7 @@
 package org.example;
 
+import io.qameta.allure.Step;
+
 public class CourierCredentials {
     private String login;
     private String password;
@@ -12,6 +14,7 @@ public class CourierCredentials {
         this.password = password;
     }
 
+    @Step("Создать данные авторизациии для курьера")
     public static CourierCredentials from(Courier courier) {
         return new CourierCredentials(courier.getLogin(), courier.getPassword());
     }

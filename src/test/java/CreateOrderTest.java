@@ -1,10 +1,16 @@
+import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
-import org.example.*;
+import org.example.ForOrderData;
+import org.example.ForOrderRequest;
+import org.example.OrderGenerator;
+import org.example.ScooterColor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+
 import java.util.List;
+
 import static org.apache.http.HttpStatus.SC_CREATED;
 import static org.example.ScooterColor.BLACK;
 import static org.example.ScooterColor.GREY;
@@ -36,6 +42,7 @@ public class CreateOrderTest {
     }
 
     @Test
+    @DisplayName("Тест что заказ может быть создан с использованием всех правильных полей")
     public void testOrderCanByCreatedWithAllCorrectField() {
         ValidatableResponse response = forOrderRequest.create(forOrderData);
         int statusCode = response.extract().statusCode();

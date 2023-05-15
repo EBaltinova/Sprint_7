@@ -1,3 +1,6 @@
+import io.qameta.allure.junit4.DisplayName;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import org.example.Courier;
 import org.example.CourierClient;
@@ -9,6 +12,7 @@ import org.junit.Test;
 
 import static org.apache.http.HttpStatus.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CourierCreateTest {
     private Courier courier;
@@ -26,17 +30,23 @@ public class CourierCreateTest {
     }
 
     @Test
+    @DisplayName("Тест успешного создания курьера")
     public void testCourierCanBeCreated() {
-        ValidatableResponse response = courierClient.create(courier);
-        ValidatableResponse loginResponse = courierClient.login(CourierCredentials.from(courier)); // для логина, чтоб получить id
+        ValidatableResponse createResponse = courierClient.create(courier);
+        ExtractableResponse<Response> extractedCreateResponse = createResponse.extract();
 
-        id = loginResponse.extract().path("id");  // Вытащить id, что передать его в cleanUpData, для удаления курьера после тестирования
+        assertEquals(SC_CREATED, extractedCreateResponse.statusCode());
+        boolean isCourierCreated = extractedCreateResponse.jsonPath().getBoolean("ok");
 
-        int statusCode = response.extract().statusCode();
-        assertEquals(SC_CREATED, statusCode); //  Переиспользовать код статуса из интерфейса HttpStatus
+        assertTrue(isCourierCreated);
+
+        ValidatableResponse loginResponse = courierClient.login(CourierCredentials.from(courier));
+        ExtractableResponse<Response> extractedLoginResponse = loginResponse.extract();
+        id = extractedLoginResponse.jsonPath().getInt("id"); // Передать id в cleanUpData, для удаления курьера после тестирования
     }
 
     @Test
+    @DisplayName("Тест на невозможность создания курьера с повторяющимеся данными")
     public void testCourierCantBeCreatedWithSameData() {
         ValidatableResponse responseFirstCourier = courierClient.create(courier);
         ValidatableResponse responseSecondCourier = courierClient.create(courier);
@@ -46,16 +56,25 @@ public class CourierCreateTest {
 
         int statusCode = responseSecondCourier.extract().statusCode();
         assertEquals(SC_CONFLICT, statusCode);
+
+        String message = responseSecondCourier.extract().jsonPath().getString("message");
+        assertEquals("Этот логин уже используется. Попробуйте другой.", message);
     }
 
     @Test
+    @DisplayName("Тест на невозможность создания курьера без необходимого поля")
     public void testCourierCantBeCreatedWithoutNecessaryField() {
         ValidatableResponse response = courierClient.create(courierWithoutNecessaryField);
         int statusCode = response.extract().statusCode();
+
         assertEquals(SC_BAD_REQUEST, statusCode);
+
+        String message = response.extract().jsonPath().getString("message");
+        assertEquals("Недостаточно данных для создания учетной записи", message);
     }
 
     @Test
+    @DisplayName("Тест на невозможность создания курьера с повторяющимся логином")
     public void testCourierCantBeCreatedWithSameLogin() {
         ValidatableResponse responseFirstCourier = courierClient.create(courier);
         ValidatableResponse responseSecondCourierWithSameLogin = courierClient.create(courierWithSameLogin);
@@ -65,6 +84,9 @@ public class CourierCreateTest {
 
         int statusCode = responseSecondCourierWithSameLogin.extract().statusCode();
         assertEquals(SC_CONFLICT, statusCode);
+
+        String message = responseSecondCourierWithSameLogin.extract().jsonPath().getString("message");
+        assertEquals("Этот логин уже используется. Попробуйте другой.", message);
     }
 
     @After
